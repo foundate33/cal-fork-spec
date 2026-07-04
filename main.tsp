@@ -84,6 +84,56 @@ model SlotCreate {
   endTime: utcDateTime;
 }
 
+// ---- Availability ----
+
+/** День недели */
+enum WeekDay {
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday,
+  sunday,
+}
+
+/** Правило доступности — повторяющийся временной интервал */
+model AvailabilityRule {
+  /** ID правила */
+  id: string;
+
+  /** ID автора */
+  authorId: string;
+
+  /** Дни недели */
+  daysOfWeek: WeekDay[];
+
+  /** Время начала (HH:mm) */
+  startTime: string;
+
+  /** Время окончания (HH:mm) */
+  endTime: string;
+
+  /** Часовой пояс (IANA, например Europe/Moscow) */
+  timezone: string;
+}
+
+/** Параметры создания правила доступности */
+model AvailabilityRuleCreate {
+  daysOfWeek: WeekDay[];
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
+/** Параметры обновления правила доступности */
+model AvailabilityRuleUpdate {
+  daysOfWeek?: WeekDay[];
+  startTime?: string;
+  endTime?: string;
+  timezone?: string;
+}
+
 // ---- Booking ----
 
 /** Запрос на бронирование */
@@ -185,6 +235,36 @@ interface Slots {
     ...AuthorizedRequest,
     @path eventTypeId: string,
     @path slotId: string,
+  ): void | Error;
+}
+
+// ---- Availability (Author) ----
+
+@route("/availability")
+@tag("Availability")
+interface Availability {
+  /** Добавить правило доступности */
+  @post create(
+    ...AuthorizedRequest,
+    @body body: AvailabilityRuleCreate,
+  ): AvailabilityRule | Error;
+
+  /** Получить все правила доступности автора */
+  @get list(
+    ...AuthorizedRequest,
+  ): AvailabilityRule[] | Error;
+
+  /** Обновить правило доступности */
+  @patch update(
+    ...AuthorizedRequest,
+    @path ruleId: string,
+    @body body: AvailabilityRuleUpdate,
+  ): AvailabilityRule | Error;
+
+  /** Удалить правило доступности */
+  @delete delete(
+    ...AuthorizedRequest,
+    @path ruleId: string,
   ): void | Error;
 }
 

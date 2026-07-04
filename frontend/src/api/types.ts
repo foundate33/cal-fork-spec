@@ -1,0 +1,95 @@
+export interface EventType {
+  id: string;
+  title: string;
+  description?: string;
+  durationMinutes: number;
+  zoomLink: string;
+  slug: string;
+  authorId: string;
+  bookingLink: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventTypeCreate {
+  title: string;
+  description?: string;
+  durationMinutes: number;
+  zoomLink: string;
+  slug?: string;
+}
+
+export interface EventTypeUpdate {
+  title?: string;
+  description?: string;
+  durationMinutes?: number;
+  zoomLink?: string;
+}
+
+export interface Slot {
+  id: string;
+  eventTypeId: string;
+  startTime: string;
+  endTime: string;
+  status: 'available' | 'booked';
+}
+
+export interface SlotCreate {
+  startTime: string;
+  endTime: string;
+}
+
+export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+export interface AvailabilityRule {
+  id: string;
+  authorId: string;
+  daysOfWeek: WeekDay[];
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
+export interface AvailabilityRuleCreate {
+  daysOfWeek: WeekDay[];
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
+export interface AvailabilityRuleUpdate {
+  daysOfWeek?: WeekDay[];
+  startTime?: string;
+  endTime?: string;
+  timezone?: string;
+}
+
+export interface BookerInfo {
+  name: string;
+  email: string;
+  notes?: string;
+}
+
+export interface Booking {
+  id: string;
+  eventType: EventType;
+  slot: Slot;
+  booker: BookerInfo;
+  zoomLink: string;
+  createdAt: string;
+}
+
+export interface BookingCreate {
+  slotId: string;
+  booker: BookerInfo;
+}
+
+export interface BookingPage {
+  eventType: EventType;
+  slots: Slot[];
+}
+
+export interface CalendarEntry {
+  date: string;
+  bookings: Booking[];
+}
