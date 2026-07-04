@@ -1,18 +1,124 @@
 import "@typespec/http";
+import "@typespec/rest";
 
 using Http;
-@service(#{ title: "Widget Service" })
-namespace DemoService;
+using TypeSpec.Rest;
 
-model Widget {
+@service(#{ title: "Cal Fork" })
+namespace CalFork;
+
+// ---- Auth ----
+model AuthorizedRequest {
+  @header "x-user-id": string;
+}
+
+// ---- Shared models ----
+
+model BookerInfo {
+  /** Имя бронирующего */
+  name: string;
+
+  /** Email бронирующего */
+  email: string;
+
+  /** Комментарий к бронированию */
+  notes?: string;
+}
+
+// ---- EventType ----
+
+/** Параметры для создания типа события */
+model EventTypeCreate {
+  /** Название встречи */
+  title: string;
+
+  /** Описание типа встречи */
+  description?: string;
+
+  /** Длительность в минутах */
+  durationMinutes: int32;
+
+  /** Ссылка на Zoom-конференцию */
+  zoomLink: string;
+
+  /** Кастомный slug для ссылки бронирования (опционально, иначе генерируется) */
+  slug?: string;
+}
+
+/** Параметры для обновления типа события */
+model EventTypeUpdate {
+  title?: string;
+  description?: string;
+  durationMinutes?: int32;
+  zoomLink?: string;
+}
+
+/** Тип события (шаблон встречи) */
+model EventType {
   id: string;
-  weight: int32;
-  color: "red" | "blue";
+  title: string;
+  description?: string;
+  durationMinutes: int32;
+  zoomLink: string;
+  slug: string;
+  authorId: string;
+  bookingLink: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
 }
 
-model WidgetList {
-  items: Widget[];
+// ---- Slot ----
+
+/** Временной слот, доступный для бронирования */
+model Slot {
+  id: string;
+  eventTypeId: string;
+  startTime: utcDateTime;
+  endTime: utcDateTime;
+  status: "available" | "booked";
 }
+
+/** Параметры создания слота */
+model SlotCreate {
+  startTime: utcDateTime;
+  endTime: utcDateTime;
+}
+
+// ---- Booking ----
+
+/** Запрос на бронирование */
+model BookingCreate {
+  slotId: string;
+  booker: BookerInfo;
+}
+
+/** Подтверждённое бронирование */
+model Booking {
+  id: string;
+  eventType: EventType;
+  slot: Slot;
+  booker: BookerInfo;
+  zoomLink: string;
+  createdAt: utcDateTime;
+}
+
+// ---- Calendar ----
+
+/** Запись в календаре автора */
+model CalendarEntry {
+  date: plainDate;
+  bookings: Booking[];
+}
+
+// ---- Booking page (public) ----
+
+/** Публичная страница бронирования */
+model BookingPage {
+  eventType: EventType;
+  slots: Slot[];
+}
+
+// ---- Error ----
 
 @error
 model Error {
@@ -20,25 +126,95 @@ model Error {
   message: string;
 }
 
-model AnalyzeResult {
-  id: string;
-  analysis: string;
+// ---- Event Types (Author) ----
+
+@route("/event-types")
+@tag("Event Types")
+interface EventTypes {
+  /** Создать новый тип события */
+  @post create(
+    ...AuthorizedRequest,
+    @body body: EventTypeCreate,
+  ): EventType | Error;
+
+  /** Получить список типов событий автора */
+  @get list(
+    ...AuthorizedRequest,
+  ): EventType[] | Error;
+
+  /** Получить тип события по ID */
+  @get get(
+    ...AuthorizedRequest,
+    @path id: string,
+  ): EventType | Error;
+
+  /** Обновить тип события */
+  @patch update(
+    ...AuthorizedRequest,
+    @path id: string,
+    @body body: EventTypeUpdate,
+  ): EventType | Error;
+
+  /** Удалить тип события */
+  @delete delete(
+    ...AuthorizedRequest,
+    @path id: string,
+  ): void | Error;
 }
 
-@route("/widgets")
-@tag("Widgets")
-interface Widgets {
-  /** List widgets */
-  @get list(): WidgetList | Error;
-  /** Read widgets */
-  @get read(@path id: string): Widget | Error;
-  /** Create a widget */
-  @post create(@body body: Widget): Widget | Error;
-  /** Update a widget */
-  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget | Error;
-  /** Delete a widget */
-  @delete delete(@path id: string): void | Error;
+// ---- Slots (Author) ----
 
-  /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
+@route("/event-types/{eventTypeId}/slots")
+@tag("Slots")
+interface Slots {
+  /** Добавить доступные слоты */
+  @post add(
+    ...AuthorizedRequest,
+    @path eventTypeId: string,
+    @body slots: SlotCreate[],
+  ): Slot[] | Error;
+
+  /** Получить все слоты типа события */
+  @get list(
+    ...AuthorizedRequest,
+    @path eventTypeId: string,
+  ): Slot[] | Error;
+
+  /** Удалить конкретный слот */
+  @delete delete(
+    ...AuthorizedRequest,
+    @path eventTypeId: string,
+    @path slotId: string,
+  ): void | Error;
+}
+
+// ---- Calendar (Author) ----
+
+@route("/calendar")
+@tag("Calendar")
+interface Calendar {
+  /** Получить календарь автора с забронированными встречами */
+  @get view(
+    ...AuthorizedRequest,
+    @query startDate: plainDate,
+    @query endDate: plainDate,
+  ): CalendarEntry[] | Error;
+}
+
+// ---- Booking (Booker — public) ----
+
+@route("/book/{slug}")
+@tag("Booking")
+interface BookingRouter {
+  /** Получить публичную страницу бронирования (тип события + доступные слоты) */
+  @get page(
+    @path slug: string,
+  ): BookingPage | Error;
+
+  /** Забронировать слот */
+  @route("book")
+  @post book(
+    @path slug: string,
+    @body body: BookingCreate,
+  ): Booking | Error;
 }
