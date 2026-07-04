@@ -7,3 +7,15 @@ dist/
 
 # Dependency directories
 node_modules/
+
+# Gradle
+backend/.gradle/
+backend/build/
+backend/bin/
+backend/out/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+*.kotlin_module

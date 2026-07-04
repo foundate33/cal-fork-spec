@@ -11,6 +11,8 @@ This repo has two independent parts:
 
 There is no backend implementation in this repo — the API is mocked via Prism from the generated OpenAPI spec.
 
+A **backend skeleton** lives in `backend/` (Spring Boot + Kotlin + Gradle + JDBC + Liquibase), with no endpoints or schema yet — ready for implementation.
+
 ## Commands
 
 ### Root (TypeSpec spec)
@@ -38,9 +40,12 @@ make frontend-install   # npm install
 make frontend-dev       # vite dev server
 make frontend-build     # tsc -b && vite build
 make frontend-lint      # oxlint
+make frontend-verify    # lint + type-check + build (стандартная верификация)
 make frontend-preview   # vite preview
 make frontend-clean     # rm -rf frontend/dist
 ```
+
+`make frontend-verify` runs lint, type-check, and build (стандартная верификация фронтенда). `make backend-lint` запускает ktlint для бэкенда. `make verify` делает то же самое для фронтенда + линтинг и тесты бэкенда.
 
 `make dev` runs `mock` and `frontend-dev` together (via `make -j2`), as the two-terminal flow below, in one command. `make all` installs both root and frontend dependencies and generates the spec. `make clean-all` removes both generated outputs (`tsp-output/` and `frontend/dist/`).
 
@@ -55,7 +60,35 @@ npm run lint      # oxlint
 npm run preview
 ```
 
-There are no tests configured in either part of the repo.
+There are no tests configured in the frontend. The backend has JUnit 5 + AssertJ tests.
+
+### Backend
+
+Spring Boot, Kotlin, Gradle, Spring JDBC, Liquibase, H2 in-memory, JUnit 5 + AssertJ.
+
+Commands (also wrapped in root `Makefile`):
+
+```
+make backend-install   # generate Gradle wrapper
+make backend-build     # ./gradlew build
+make backend-lint      # ./gradlew ktlintCheck
+make backend-test      # ./gradlew test
+make backend-clean     # rm -rf build .gradle
+```
+
+Or run directly from `backend/`:
+
+```
+./gradlew build
+./gradlew test
+```
+
+**Important conventions when implementing controllers, services, or data model:**
+
+- **No JPA** — only Spring JDBC (`JdbcTemplate`, `NamedParameterJdbcTemplate`).
+- **Liquibase** changelogs go in `src/main/resources/db/changelog/`; add `<include>` to `db.changelog-master.yaml`.
+- The server runs on **port 4010** (matching the frontend's hardcoded `BASE_URL` in `frontend/src/api/client.ts`).
+- Auth is faked via `x-user-id` header — match `AuthorizedRequest` from the spec.
 
 ### Typical local dev flow
 

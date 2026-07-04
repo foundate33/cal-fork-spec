@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: cal-fork-backend
+  datasource:
+    url: jdbc:h2:mem:calfork
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+server:
+  port: 4010
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info
