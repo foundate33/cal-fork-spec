@@ -1,20 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Table,
-  Button,
-  Group,
-  Text,
-  Loader,
-  Title,
-  Badge,
-  Stack,
-  Breadcrumbs,
-  Anchor,
-  Modal,
+  Table, Button, Group, Text, Loader, Title, Badge, Stack, Breadcrumbs, Anchor, Modal,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconPlus, IconCalendarEvent, IconTrash, IconArrowLeft } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { slotsApi } from '../api/client';
 import type { Slot, SlotCreate } from '../api/types';
@@ -44,20 +35,14 @@ export function SlotsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchSlots();
-  }, [eventTypeId]);
+  useEffect(() => { fetchSlots(); }, [eventTypeId]);
 
   const handleAdd = async (newSlots: SlotCreate[]) => {
     if (!eventTypeId) return;
     try {
       await slotsApi.add(eventTypeId, newSlots);
       await fetchSlots();
-      notifications.show({
-        title: 'Success',
-        message: 'Slot added',
-        color: 'green',
-      });
+      notifications.show({ title: 'Success', message: 'Slot added', color: 'green' });
     } catch (err) {
       notifyError(err, 'Failed to add slot');
     }
@@ -69,48 +54,55 @@ export function SlotsPage() {
       await slotsApi.delete(eventTypeId, deleteTarget.id);
       setDeleteTarget(null);
       await fetchSlots();
-      notifications.show({
-        title: 'Deleted',
-        message: 'Slot deleted',
-        color: 'green',
-      });
+      notifications.show({ title: 'Deleted', message: 'Slot deleted', color: 'green' });
     } catch (err) {
       notifyError(err, 'Delete failed');
     }
   };
 
   if (!eventTypeId) {
-    return (
-      <Stack align="center" mt="xl">
-        <Text c="dimmed">Event type not found.</Text>
-      </Stack>
-    );
+    return <Stack align="center" mt="xl"><Text c="dimmed">Event type not found.</Text></Stack>;
   }
 
   if (loading) {
-    return (
-      <Stack align="center" mt="xl">
-        <Loader />
-      </Stack>
-    );
+    return <Stack align="center" mt="xl"><Loader /></Stack>;
   }
 
   return (
     <>
       <Breadcrumbs mb="md">
-        <Anchor size="sm" onClick={() => navigate('/event-types')}>
+        <Anchor
+          size="sm"
+          onClick={() => navigate('/event-types')}
+          style={{ cursor: 'pointer' }}
+        >
           Event Types
         </Anchor>
-        <Text size="sm">Slots</Text>
+        <Text size="sm" c="dimmed">Slots</Text>
       </Breadcrumbs>
-
-      <Group justify="space-between" mb="md">
-        <Title order={2}>Slots</Title>
-        <Button onClick={openForm}>Add Slot</Button>
+      <Group justify="space-between" mb="lg">
+        <Group>
+          <Button
+            variant="subtle"
+            size="sm"
+            leftSection={<IconArrowLeft size={16} />}
+            onClick={() => navigate('/event-types')}
+          >
+            Back
+          </Button>
+          <Title order={2}>Slots</Title>
+        </Group>
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={openForm}
+        >
+          Add Slot
+        </Button>
       </Group>
 
       {slots.length === 0 ? (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" gap="md">
+          <IconCalendarEvent size={40} color="var(--mantine-color-gray-4)" />
           <Text c="dimmed">No slots added yet.</Text>
         </Stack>
       ) : (
@@ -138,6 +130,7 @@ export function SlotsPage() {
                     variant="subtle"
                     size="xs"
                     color="red"
+                    leftSection={<IconTrash size={14} />}
                     onClick={() => setDeleteTarget(slot)}
                   >
                     Delete
@@ -149,26 +142,13 @@ export function SlotsPage() {
         </Table>
       )}
 
-      <SlotForm
-        opened={formOpened}
-        onClose={closeForm}
-        onAdd={handleAdd}
-      />
-
-      <Modal
-        opened={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        title="Confirm Delete"
-      >
+      <SlotForm opened={formOpened} onClose={closeForm} onAdd={handleAdd} />
+      <Modal opened={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Confirm Delete" centered>
         <Stack>
           <Text>Are you sure you want to delete this slot?</Text>
           <Group justify="flex-end">
-            <Button variant="default" onClick={() => setDeleteTarget(null)}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={handleDelete}>
-              Delete
-            </Button>
+            <Button variant="default" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button color="red" onClick={handleDelete}>Delete</Button>
           </Group>
         </Stack>
       </Modal>
