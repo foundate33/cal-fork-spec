@@ -114,3 +114,7 @@ When adding/changing a model or route, edit `main.tsp` and run `make generate` t
 - **Routing** (`App.tsx`): author-facing pages (`/event-types`, `/event-types/:eventTypeId/slots`, `/availability`, `/calendar`) are wrapped in `AuthGuard`; the public booking page (`/book/:slug`) is not, matching the spec's public `BookingRouter`.
 - **UI kit**: Mantine (`@mantine/core`, `dates`, `form`, `hooks`, `notifications`), theme customization in `theme.ts`. Forms use `@mantine/form`; async errors typically surface via `@mantine/notifications`.
 - Pages under `pages/` correspond to the spec's interfaces (one page per resource); reusable form pieces live in `components/` (`EventTypeForm`, `SlotForm`, `AvailabilityForm`).
+
+## Verification
+
+После завершения любой работы напиши, как ты верифицировал изменения — какие команды запускал, какой результат, были ли ошибки. Это должно быть последним шагом перед ответом пользователю.

@@ -89,7 +89,7 @@ export function CalendarPage() {
                       </Table.Td>
                       <Table.Td>
                         <Text size="sm">
-                          {dayjs(b.slot.startTime).format('HH:mm')} - {dayjs(b.slot.endTime).format('HH:mm')}
+                          {dayjs(b.startTime).format('HH:mm')} - {dayjs(b.endTime).format('HH:mm')}
                         </Text>
                       </Table.Td>
                       <Table.Td>

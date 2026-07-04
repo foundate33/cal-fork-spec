@@ -48,7 +48,8 @@ export function BookingPage() {
     if (!slug || !selectedSlot) return;
     try {
       const result = await bookingApi.book(slug, {
-        slotId: selectedSlot.id,
+        startTime: selectedSlot.startTime,
+        endTime: selectedSlot.endTime,
         booker: { name: values.name, email: values.email, notes: values.notes || undefined },
       });
       setBooked(result);
@@ -72,7 +73,6 @@ export function BookingPage() {
   }
 
   const { eventType, slots } = data;
-  const availableSlots = slots.filter((s) => s.status === 'available');
 
   return (
     <Stack maw={580} mx="auto" mt="lg">
@@ -109,10 +109,10 @@ export function BookingPage() {
           <Title order={3} ta="center" c="green" mb="md">Meeting Confirmed!</Title>
           <Stack gap="xs" align="center">
             <Text>
-              <strong>Date:</strong> {dayjs(booked.slot.startTime).format('MMMM D, YYYY')}
+              <strong>Date:</strong> {dayjs(booked.startTime).format('MMMM D, YYYY')}
             </Text>
             <Text>
-              <strong>Time:</strong> {dayjs(booked.slot.startTime).format('HH:mm')} - {dayjs(booked.slot.endTime).format('HH:mm')}
+              <strong>Time:</strong> {dayjs(booked.startTime).format('HH:mm')} - {dayjs(booked.endTime).format('HH:mm')}
             </Text>
             <Divider my="sm" />
             <Button
@@ -131,15 +131,15 @@ export function BookingPage() {
       ) : (
         <Card withBorder padding="lg" radius="md">
           <Title order={4} mb="md">Select a time slot</Title>
-          {availableSlots.length === 0 ? (
+          {slots.length === 0 ? (
             <Text c="dimmed" ta="center" py="xl">
               No available slots at the moment.
             </Text>
           ) : (
             <Stack gap="sm">
-              {availableSlots.map((slot) => (
+              {slots.map((slot, idx) => (
                 <Card
-                  key={slot.id}
+                  key={idx}
                   withBorder
                   padding="md"
                   radius="md"

@@ -69,17 +69,8 @@ model EventType {
 
 // ---- Slot ----
 
-/** Временной слот, доступный для бронирования */
+/** Временной слот, доступный для бронирования (вычисляется из AvailabilityRule + EventType) */
 model Slot {
-  id: string;
-  eventTypeId: string;
-  startTime: utcDateTime;
-  endTime: utcDateTime;
-  status: "available" | "booked";
-}
-
-/** Параметры создания слота */
-model SlotCreate {
   startTime: utcDateTime;
   endTime: utcDateTime;
 }
@@ -138,7 +129,8 @@ model AvailabilityRuleUpdate {
 
 /** Запрос на бронирование */
 model BookingCreate {
-  slotId: string;
+  startTime: utcDateTime;
+  endTime: utcDateTime;
   booker: BookerInfo;
 }
 
@@ -146,7 +138,8 @@ model BookingCreate {
 model Booking {
   id: string;
   eventType: EventType;
-  slot: Slot;
+  startTime: utcDateTime;
+  endTime: utcDateTime;
   booker: BookerInfo;
   zoomLink: string;
   createdAt: utcDateTime;
@@ -212,30 +205,17 @@ interface EventTypes {
   ): void | Error;
 }
 
-// ---- Slots (Author) ----
+// ---- Slots (Author — computed) ----
 
 @route("/event-types/{eventTypeId}/slots")
 @tag("Slots")
 interface Slots {
-  /** Добавить доступные слоты */
-  @post add(
-    ...AuthorizedRequest,
-    @path eventTypeId: string,
-    @body slots: SlotCreate[],
-  ): Slot[] | Error;
-
-  /** Получить все слоты типа события */
+  /** Получить доступные слоты для типа события на указанную дату */
   @get list(
     ...AuthorizedRequest,
     @path eventTypeId: string,
+    @query date: plainDate,
   ): Slot[] | Error;
-
-  /** Удалить конкретный слот */
-  @delete delete(
-    ...AuthorizedRequest,
-    @path eventTypeId: string,
-    @path slotId: string,
-  ): void | Error;
 }
 
 // ---- Availability (Author) ----

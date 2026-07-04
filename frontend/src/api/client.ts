@@ -1,5 +1,5 @@
 import type { EventType, EventTypeCreate, EventTypeUpdate } from './types';
-import type { Slot, SlotCreate } from './types';
+import type { Slot } from './types';
 import type { AvailabilityRule, AvailabilityRuleCreate, AvailabilityRuleUpdate } from './types';
 import type { BookingPage, BookingCreate, Booking } from './types';
 import type { CalendarEntry } from './types';
@@ -17,12 +17,8 @@ export const eventTypesApi = {
 };
 
 export const slotsApi = {
-  list: (eventTypeId: string) =>
-    api.get<Slot[]>(`/event-types/${eventTypeId}/slots`),
-  add: (eventTypeId: string, slots: SlotCreate[]) =>
-    api.post<Slot[]>(`/event-types/${eventTypeId}/slots`, slots),
-  delete: (eventTypeId: string, slotId: string) =>
-    api.delete<void>(`/event-types/${eventTypeId}/slots/${slotId}`),
+  list: (eventTypeId: string, date: string) =>
+    api.get<Slot[]>(`/event-types/${eventTypeId}/slots?date=${date}`),
 };
 
 export const availabilityApi = {

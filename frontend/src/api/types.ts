@@ -27,14 +27,6 @@ export interface EventTypeUpdate {
 }
 
 export interface Slot {
-  id: string;
-  eventTypeId: string;
-  startTime: string;
-  endTime: string;
-  status: 'available' | 'booked';
-}
-
-export interface SlotCreate {
   startTime: string;
   endTime: string;
 }
@@ -73,14 +65,16 @@ export interface BookerInfo {
 export interface Booking {
   id: string;
   eventType: EventType;
-  slot: Slot;
+  startTime: string;
+  endTime: string;
   booker: BookerInfo;
   zoomLink: string;
   createdAt: string;
 }
 
 export interface BookingCreate {
-  slotId: string;
+  startTime: string;
+  endTime: string;
   booker: BookerInfo;
 }
 
