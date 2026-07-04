@@ -1,0 +1,5 @@
+# Slots are computed from Availability + EventType, not stored as entities
+
+The current OpenAPI spec defines `Slot` as a stored entity with full CRUD (`POST /event-types/{id}/slots`, `DELETE`, `GET`). After domain modeling, the team confirmed that the domain does not require one-off slot overrides — a host can only offer time within their `AvailabilityRule`. Therefore slots are not stored; they are computed on read as the intersection of `EventType.durationMinutes` and the assigned `AvailabilityRule`, minus already-booked `Booking` records.
+
+The trade-off: stored slots would allow a host to add ad-hoc slots or block individual times, but this flexibility is not needed. Computed slots keep the single source of truth in `AvailabilityRule` and eliminate sync bugs between manually created slots and the host's actual availability.

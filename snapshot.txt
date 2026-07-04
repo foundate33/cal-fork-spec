@@ -1,0 +1,15 @@
+uid=1_0 RootWebArea "Cal Fork" url="http://localhost:5173/"
+  uid=1_1 banner
+    uid=1_2 StaticText "Cal Fork"
+    uid=1_3 button
+  uid=1_4 navigation
+    uid=1_5 button "Event Types"
+    uid=1_6 button "Availability"
+    uid=1_7 button "Calendar"
+    uid=1_8 button "Sign in"
+  uid=1_9 main
+    uid=1_10 heading "Simple scheduling for everyone" level="1"
+    uid=1_11 StaticText "Create event types, manage your availability, and share booking links with your clients. No sign-up friction — just your User ID and you're ready to go."
+    uid=1_12 StaticText "Click "
+    uid=1_13 StaticText "Sign in"
+    uid=1_14 StaticText " in the sidebar to get started."
