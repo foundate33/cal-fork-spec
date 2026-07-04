@@ -4,6 +4,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconPlus, IconClock, IconEdit, IconTrash } from '@tabler/icons-react';
 import { availabilityApi } from '../api/client';
 import type { AvailabilityRule, AvailabilityRuleCreate, AvailabilityRuleUpdate, WeekDay } from '../api/types';
 import { AvailabilityForm } from '../components/AvailabilityForm';
@@ -44,11 +45,7 @@ export function AvailabilityPage() {
       }
       setEditing(null);
       await fetchRules();
-      notifications.show({
-        title: 'Success',
-        message: editing ? 'Rule updated' : 'Rule created',
-        color: 'green',
-      });
+      notifications.show({ title: 'Success', message: editing ? 'Rule updated' : 'Rule created', color: 'green' });
     } catch (err) {
       notifyError(err, 'Operation failed');
     }
@@ -72,16 +69,24 @@ export function AvailabilityPage() {
 
   return (
     <>
-      <Group justify="space-between" mb="md">
+      <Group justify="space-between" mb="lg">
         <Title order={2}>Availability</Title>
-        <Button onClick={() => { setEditing(null); openForm(); }}>Add Rule</Button>
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => { setEditing(null); openForm(); }}
+        >
+          Add Rule
+        </Button>
       </Group>
 
       {rules.length === 0 ? (
         <Card withBorder p="xl">
-          <Text c="dimmed" ta="center">
-            No availability rules yet. Add your first rule to define when you're available.
-          </Text>
+          <Stack align="center" gap="md">
+            <IconClock size={40} color="var(--mantine-color-gray-4)" />
+            <Text c="dimmed" ta="center">
+              No availability rules yet. Add your first rule to define when you're available.
+            </Text>
+          </Stack>
         </Card>
       ) : (
         <Table striped highlightOnHover withTableBorder>
@@ -97,20 +102,39 @@ export function AvailabilityPage() {
             {rules.map((rule) => (
               <Table.Tr key={rule.id}>
                 <Table.Td>
-                  {rule.daysOfWeek.map((d) => dayLabels[d] || d).join(', ')}
+                  <Group gap={4}>
+                    {rule.daysOfWeek.map((d) => (
+                      <Badge key={d} variant="light" color="orange" size="sm">
+                        {dayLabels[d] || d}
+                      </Badge>
+                    ))}
+                  </Group>
                 </Table.Td>
                 <Table.Td>
-                  <Badge variant="light" color="blue">
+                  <Badge variant="outline" color="blue">
                     {rule.startTime} - {rule.endTime}
                   </Badge>
                 </Table.Td>
-                <Table.Td><Text size="sm">{rule.timezone}</Text></Table.Td>
+                <Table.Td>
+                  <Text size="sm" c="dimmed">{rule.timezone}</Text>
+                </Table.Td>
                 <Table.Td>
                   <Group gap="xs">
-                    <Button variant="subtle" size="xs" onClick={() => { setEditing(rule); openForm(); }}>
+                    <Button
+                      variant="subtle"
+                      size="xs"
+                      leftSection={<IconEdit size={14} />}
+                      onClick={() => { setEditing(rule); openForm(); }}
+                    >
                       Edit
                     </Button>
-                    <Button variant="subtle" size="xs" color="red" onClick={() => setDeleteTarget(rule)}>
+                    <Button
+                      variant="subtle"
+                      size="xs"
+                      color="red"
+                      leftSection={<IconTrash size={14} />}
+                      onClick={() => setDeleteTarget(rule)}
+                    >
                       Delete
                     </Button>
                   </Group>
@@ -121,14 +145,8 @@ export function AvailabilityPage() {
         </Table>
       )}
 
-      <AvailabilityForm
-        opened={formOpened}
-        onClose={() => { closeForm(); setEditing(null); }}
-        rule={editing}
-        onSave={handleSave}
-      />
-
-      <Modal opened={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Confirm Delete">
+      <AvailabilityForm opened={formOpened} onClose={() => { closeForm(); setEditing(null); }} rule={editing} onSave={handleSave} />
+      <Modal opened={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Confirm Delete" centered>
         <Stack>
           <Text>Are you sure you want to delete this availability rule?</Text>
           <Group justify="flex-end">

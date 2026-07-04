@@ -1,22 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  Title,
-  Text,
-  Card,
-  Badge,
-  Stack,
-  Group,
-  Modal,
-  TextInput,
-  Textarea,
-  Button,
-  Loader,
-  Divider,
+  Title, Text, Card, Badge, Stack, Group, Modal, TextInput, Textarea, Button, Loader, Divider,
 } from '@mantine/core';
 import { useForm, isEmail } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconClock, IconVideo, IconCalendarPlus, IconCheck } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { bookingApi } from '../api/client';
 import type { BookingPage, Slot, Booking } from '../api/types';
@@ -31,11 +21,7 @@ export function BookingPage() {
   const [bookOpened, { open: openBook, close: closeBook }] = useDisclosure();
 
   const form = useForm({
-    initialValues: {
-      name: '',
-      email: '',
-      notes: '',
-    },
+    initialValues: { name: '', email: '', notes: '' },
     validate: {
       name: (v) => (!v ? 'Name is required' : null),
       email: isEmail('Invalid email'),
@@ -63,38 +49,24 @@ export function BookingPage() {
     try {
       const result = await bookingApi.book(slug, {
         slotId: selectedSlot.id,
-        booker: {
-          name: values.name,
-          email: values.email,
-          notes: values.notes || undefined,
-        },
+        booker: { name: values.name, email: values.email, notes: values.notes || undefined },
       });
       setBooked(result);
       closeBook();
-      notifications.show({
-        title: 'Booked!',
-        message: 'Your meeting has been booked successfully.',
-        color: 'green',
-      });
+      notifications.show({ title: 'Booked!', message: 'Your meeting has been booked successfully.', color: 'green' });
     } catch (err) {
       notifyError(err, 'Booking failed');
     }
   };
 
   if (loading) {
-    return (
-      <Stack align="center" mt="xl">
-        <Loader />
-      </Stack>
-    );
+    return <Stack align="center" mt="xl"><Loader /></Stack>;
   }
 
   if (!data) {
     return (
-      <Card withBorder p="xl">
-        <Text c="dimmed" ta="center">
-          Event type not found.
-        </Text>
+      <Card withBorder p="xl" maw={500} mx="auto" mt="xl">
+        <Text c="dimmed" ta="center">Event type not found.</Text>
       </Card>
     );
   }
@@ -103,83 +75,88 @@ export function BookingPage() {
   const availableSlots = slots.filter((s) => s.status === 'available');
 
   return (
-    <Stack maw={600} mx="auto">
-      <Card withBorder p="xl">
-        <Title order={2}>{eventType.title}</Title>
+    <Stack maw={580} mx="auto" mt="lg">
+      <Card withBorder padding="lg" radius="md">
+        <Group justify="center" mb="md">
+          <IconCalendarPlus
+            size={36}
+            color="var(--mantine-color-orange-6)"
+          />
+        </Group>
+        <Title order={2} ta="center" mb="xs">{eventType.title}</Title>
         {eventType.description && (
-          <Text c="dimmed" mt="sm">
+          <Text c="dimmed" ta="center" size="sm" mb="md">
             {eventType.description}
           </Text>
         )}
-        <Group mt="md">
-          <Badge variant="light" size="lg">
+        <Group justify="center">
+          <Badge
+            variant="light"
+            color="orange"
+            size="lg"
+            leftSection={<IconClock size={14} />}
+          >
             {eventType.durationMinutes} minutes
           </Badge>
         </Group>
       </Card>
 
       {booked ? (
-        <Card withBorder p="xl" bg="green.0">
-          <Title order={3} c="green">
-            Meeting Confirmed!
-          </Title>
-          <Stack mt="md" gap="xs">
+        <Card withBorder padding="lg" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+          <Group justify="center" mb="md">
+            <IconCheck size={36} color="var(--mantine-color-green-6)" />
+          </Group>
+          <Title order={3} ta="center" c="green" mb="md">Meeting Confirmed!</Title>
+          <Stack gap="xs" align="center">
             <Text>
-              <strong>Date:</strong>{' '}
-              {dayjs(booked.slot.startTime).format('MMMM D, YYYY')}
+              <strong>Date:</strong> {dayjs(booked.slot.startTime).format('MMMM D, YYYY')}
             </Text>
             <Text>
-              <strong>Time:</strong>{' '}
-              {dayjs(booked.slot.startTime).format('HH:mm')} -{' '}
-              {dayjs(booked.slot.endTime).format('HH:mm')}
+              <strong>Time:</strong> {dayjs(booked.slot.startTime).format('HH:mm')} - {dayjs(booked.slot.endTime).format('HH:mm')}
             </Text>
-            <Divider />
-            <Badge
+            <Divider my="sm" />
+            <Button
               component="a"
               href={booked.zoomLink}
               target="_blank"
               variant="filled"
               color="blue"
-              size="lg"
-              style={{ cursor: 'pointer' }}
+              leftSection={<IconVideo size={18} />}
+              size="md"
             >
               Join Zoom Meeting
-            </Badge>
+            </Button>
           </Stack>
         </Card>
       ) : (
-        <Card withBorder p="xl">
-          <Title order={3} mb="md">
-            Select a time slot
-          </Title>
-
+        <Card withBorder padding="lg" radius="md">
+          <Title order={4} mb="md">Select a time slot</Title>
           {availableSlots.length === 0 ? (
-            <Text c="dimmed">No available slots at the moment.</Text>
+            <Text c="dimmed" ta="center" py="xl">
+              No available slots at the moment.
+            </Text>
           ) : (
             <Stack gap="sm">
               {availableSlots.map((slot) => (
                 <Card
                   key={slot.id}
                   withBorder
-                  p="sm"
+                  padding="md"
+                  radius="md"
                   style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedSlot(slot);
-                    form.reset();
-                    openBook();
-                  }}
+                  onClick={() => { setSelectedSlot(slot); form.reset(); openBook(); }}
                 >
                   <Group justify="space-between">
-                    <Stack gap={0}>
-                      <Text fw={500}>
-                        {dayjs(slot.startTime).format('MMMM D, YYYY')}
-                      </Text>
-                      <Text size="sm" c="dimmed">
-                        {dayjs(slot.startTime).format('HH:mm')} -{' '}
-                        {dayjs(slot.endTime).format('HH:mm')}
-                      </Text>
+                    <Stack gap={2}>
+                      <Text fw={600}>{dayjs(slot.startTime).format('MMMM D, YYYY')}</Text>
+                      <Group gap={4}>
+                        <IconClock size={14} color="var(--mantine-color-gray-5)" />
+                        <Text size="sm" c="dimmed">
+                          {dayjs(slot.startTime).format('HH:mm')} - {dayjs(slot.endTime).format('HH:mm')}
+                        </Text>
+                      </Group>
                     </Stack>
-                    <Button variant="light">Book</Button>
+                    <Button variant="light" color="orange">Book</Button>
                   </Group>
                 </Card>
               ))}
@@ -188,37 +165,18 @@ export function BookingPage() {
         </Card>
       )}
 
-      <Modal
-        opened={bookOpened}
-        onClose={closeBook}
-        title="Complete Booking"
-      >
+      <Modal opened={bookOpened} onClose={closeBook} title="Complete Booking" centered>
         <form onSubmit={form.onSubmit(handleBook)}>
           <Stack gap="md">
             {selectedSlot && (
               <Text size="sm" c="dimmed">
-                {dayjs(selectedSlot.startTime).format('MMMM D, YYYY HH:mm')} -{' '}
-                {dayjs(selectedSlot.endTime).format('HH:mm')}
+                {dayjs(selectedSlot.startTime).format('MMMM D, YYYY HH:mm')} - {dayjs(selectedSlot.endTime).format('HH:mm')}
               </Text>
             )}
-            <TextInput
-              label="Your Name"
-              required
-              data-autofocus
-              {...form.getInputProps('name')}
-            />
-            <TextInput
-              label="Email"
-              required
-              {...form.getInputProps('email')}
-            />
-            <Textarea
-              label="Notes (optional)"
-              {...form.getInputProps('notes')}
-            />
-            <Button type="submit" fullWidth>
-              Confirm Booking
-            </Button>
+            <TextInput label="Your Name" required data-autofocus {...form.getInputProps('name')} />
+            <TextInput label="Email" required {...form.getInputProps('email')} />
+            <Textarea label="Notes (optional)" {...form.getInputProps('notes')} />
+            <Button type="submit" fullWidth>Confirm Booking</Button>
           </Stack>
         </form>
       </Modal>
