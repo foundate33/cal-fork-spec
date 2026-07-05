@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/foundate33/cal-fork-spec/compare/backend-v0.1.1...backend-v0.1.2) (2026-07-05)
+
+
+### Features
+
+* trigger release ([b909481](https://github.com/foundate33/cal-fork-spec/commit/b909481e381b0e62fb8b5648f240455466307c81))
+* trigger release ([c2d5dc0](https://github.com/foundate33/cal-fork-spec/commit/c2d5dc0dfd2d7cdb9786f5217ca8dad584260093))
+
 ## [0.1.1](https://github.com/foundate33/cal-fork-spec/compare/backend-v0.1.0...backend-v0.1.1) (2026-07-05)
 
 
