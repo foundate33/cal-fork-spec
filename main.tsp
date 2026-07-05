@@ -43,6 +43,9 @@ model EventTypeCreate {
 
   /** Кастомный slug для ссылки бронирования (опционально, иначе генерируется) */
   slug?: string;
+
+  /** ID правила доступности, к которому привязан этот тип события */
+  availabilityRuleId: string;
 }
 
 /** Параметры для обновления типа события */
@@ -63,6 +66,7 @@ model EventType {
   slug: string;
   authorId: string;
   bookingLink: string;
+  availabilityRuleId: string;
   createdAt: utcDateTime;
   updatedAt: utcDateTime;
 }

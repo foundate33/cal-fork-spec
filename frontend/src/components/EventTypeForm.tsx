@@ -1,16 +1,17 @@
 import { useEffect } from 'react';
-import { Modal, TextInput, NumberInput, Button, Stack, Textarea } from '@mantine/core';
+import { Modal, TextInput, NumberInput, Button, Stack, Textarea, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import type { EventType, EventTypeCreate, EventTypeUpdate } from '../api/types';
+import type { EventType, EventTypeCreate, EventTypeUpdate, AvailabilityRule } from '../api/types';
 
 interface Props {
   opened: boolean;
   onClose: () => void;
   eventType: EventType | null;
+  availabilityRules: AvailabilityRule[];
   onSave: (data: EventTypeCreate | EventTypeUpdate) => Promise<void>;
 }
 
-export function EventTypeForm({ opened, onClose, eventType, onSave }: Props) {
+export function EventTypeForm({ opened, onClose, eventType, availabilityRules, onSave }: Props) {
   const form = useForm({
     initialValues: {
       title: '',
@@ -18,11 +19,13 @@ export function EventTypeForm({ opened, onClose, eventType, onSave }: Props) {
       durationMinutes: 30,
       zoomLink: '',
       slug: '',
+      availabilityRuleId: '',
     },
     validate: {
       title: (v) => (!v ? 'Title is required' : null),
       durationMinutes: (v) => (v < 1 ? 'Must be at least 1 minute' : null),
       zoomLink: (v) => (!v ? 'Zoom link is required' : null),
+      availabilityRuleId: (v) => (!v ? 'Availability rule is required' : null),
     },
   });
 
@@ -34,6 +37,7 @@ export function EventTypeForm({ opened, onClose, eventType, onSave }: Props) {
         durationMinutes: eventType.durationMinutes,
         zoomLink: eventType.zoomLink,
         slug: eventType.slug,
+        availabilityRuleId: eventType.availabilityRuleId,
       });
     } else {
       form.reset();
@@ -44,6 +48,11 @@ export function EventTypeForm({ opened, onClose, eventType, onSave }: Props) {
     await onSave(values);
     onClose();
   };
+
+  const ruleOptions = availabilityRules.map((r) => ({
+    value: r.id,
+    label: `${r.daysOfWeek.join(', ')} ${r.startTime}-${r.endTime}`,
+  }));
 
   return (
     <Modal
@@ -84,6 +93,14 @@ export function EventTypeForm({ opened, onClose, eventType, onSave }: Props) {
               {...form.getInputProps('slug')}
             />
           )}
+          <Select
+            label="Availability Rule"
+            placeholder={availabilityRules.length === 0 ? 'No rules — create one first' : 'Select a rule'}
+            data={ruleOptions}
+            required
+            disabled={availabilityRules.length === 0}
+            {...form.getInputProps('availabilityRuleId')}
+          />
           <Button type="submit" fullWidth>
             {eventType ? 'Update' : 'Create'}
           </Button>
