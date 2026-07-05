@@ -1,6 +1,6 @@
 .PHONY: help install generate mock serve clean all \
 	frontend-install frontend-dev frontend-build frontend-lint frontend-verify frontend-preview frontend-clean \
-	backend-install backend-build backend-test backend-clean \
+	backend-install backend-build backend-run backend-lint backend-test backend-clean \
 	verify dev clean-all
 
 help: ## Show this help
@@ -49,6 +49,9 @@ backend-install: ## Generate Gradle wrapper for the backend
 
 backend-build: ## Build the backend
 	cd backend && ./gradlew build
+
+backend-run: ## Run the backend Spring Boot server
+	cd backend && ./gradlew bootRun
 
 backend-lint: ## Lint the backend with ktlint
 	cd backend && ./gradlew ktlintCheck

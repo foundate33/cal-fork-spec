@@ -2,3 +2,6 @@ databaseChangeLog:
   - preConditions:
       - runningAs:
           username: sa
+  - include:
+      file: 001-create-tables.yaml
+      relativeToChangelogFile: true

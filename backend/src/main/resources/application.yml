@@ -9,10 +9,17 @@ spring:
   h2:
     console:
       enabled: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 server:
   port: 4010
+
+calfork:
+  cors:
+    allowed-origins: http://localhost:5173
 
 management:
   endpoints:
