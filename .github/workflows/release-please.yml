@@ -1,0 +1,78 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_released: ${{ steps.release.outputs['frontend--release_created'] }}
+      frontend_version: ${{ steps.release.outputs['frontend--version'] }}
+      backend_released: ${{ steps.release.outputs['backend--release_created'] }}
+      backend_version: ${{ steps.release.outputs['backend--version'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: .github/release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  frontend-docker:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.frontend_released == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}/frontend
+          tags: |
+            type=raw,value=${{ needs.release-please.outputs.frontend_version }}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend/
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  backend-docker:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.backend_released == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        env:
+          IMAGE_VERSION: ${{ needs.release-please.outputs.backend_version }}
+        working-directory: backend
+        run: |
+          ./gradlew bootBuildImage --imageName=ghcr.io/${{ github.repository }}/backend:${{ env.IMAGE_VERSION }}
+          docker tag ghcr.io/${{ github.repository }}/backend:${{ env.IMAGE_VERSION }} ghcr.io/${{ github.repository }}/backend:latest
+          docker push ghcr.io/${{ github.repository }}/backend:latest
+          docker push ghcr.io/${{ github.repository }}/backend:${{ env.IMAGE_VERSION }}
