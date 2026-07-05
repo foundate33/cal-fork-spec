@@ -57,8 +57,11 @@ class EventTypeRepository(
 
     fun save(model: EventTypeModel) {
         jdbc.update(
-            """INSERT INTO event_types (id, title, description, duration_minutes, zoom_link, slug, author_id, booking_link, availability_rule_id, created_at, updated_at)
-               VALUES (:id, :title, :description, :durationMinutes, :zoomLink, :slug, :authorId, :bookingLink, :availabilityRuleId, :createdAt, :updatedAt)""",
+            """INSERT INTO event_types
+               (id, title, description, duration_minutes, zoom_link, slug,
+                author_id, booking_link, availability_rule_id, created_at, updated_at)
+               VALUES (:id, :title, :description, :durationMinutes, :zoomLink, :slug,
+                       :authorId, :bookingLink, :availabilityRuleId, :createdAt, :updatedAt)""",
             MapSqlParameterSource(
                 mapOf(
                     "id" to model.id,

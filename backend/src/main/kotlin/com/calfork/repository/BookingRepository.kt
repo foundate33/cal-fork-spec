@@ -37,6 +37,30 @@ class BookingRepository(
         )
     }
 
+    fun findByAuthorIdAndDate(
+        authorId: String,
+        date: LocalDate,
+    ): List<BookingModel> {
+        val startOfDay = date.atStartOfDay()
+        val endOfDay = date.atTime(LocalTime.MAX)
+        return jdbc.query(
+            """SELECT b.* FROM bookings b
+               JOIN event_types et ON b.event_type_id = et.id
+               WHERE et.author_id = :authorId
+               AND b.start_time >= :startOfDay
+               AND b.start_time <= :endOfDay
+               ORDER BY b.start_time""",
+            MapSqlParameterSource(
+                mapOf(
+                    "authorId" to authorId,
+                    "startOfDay" to startOfDay,
+                    "endOfDay" to endOfDay,
+                ),
+            ),
+            ROW_MAPPER,
+        )
+    }
+
     fun findByEventTypeIdsAndDateRange(
         eventTypeIds: Set<String>,
         startDate: LocalDate,

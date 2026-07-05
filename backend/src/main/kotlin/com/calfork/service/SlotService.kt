@@ -25,7 +25,7 @@ class SlotService(
         val rule = availabilityRuleRepository.findById(eventType.availabilityRuleId) ?: return emptyList()
         if (dayOfWeek !in rule.daysOfWeek) return emptyList()
 
-        val existingBookings = bookingRepository.findByEventTypeIdAndDate(eventType.id, date)
+        val existingBookings = bookingRepository.findByAuthorIdAndDate(eventType.authorId, date)
         val now = LocalDateTime.now()
         val isToday = date == now.toLocalDate()
 

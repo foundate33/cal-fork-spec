@@ -10,6 +10,7 @@ import com.calfork.model.BookingResponse
 import com.calfork.repository.BookingRepository
 import com.calfork.repository.EventTypeRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -28,6 +29,7 @@ class BookingService(
         return BookingPageDto(eventType = eventType, slots = slots)
     }
 
+    @Transactional
     fun createBooking(
         slug: String,
         request: BookingCreate,
@@ -37,7 +39,7 @@ class BookingService(
                 ?: throw NotFoundException("Event type not found: $slug")
 
         val date = request.startTime.toLocalDate()
-        val existingBookings = bookingRepository.findByEventTypeIdAndDate(eventType.id, date)
+        val existingBookings = bookingRepository.findByAuthorIdAndDate(eventType.authorId, date)
 
         val isOverlapping =
             existingBookings.any { booking ->

@@ -1,3 +1,13 @@
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 const BASE_URL = 'http://localhost:4010';
 
 function getHeaders(): Record<string, string> {
@@ -21,7 +31,7 @@ async function request<T>(
   });
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(error.message || `HTTP ${res.status}`);
+    throw new ApiError(res.status, error.message || `HTTP ${res.status}`);
   }
   if (res.status === 204) return undefined as T;
   return res.json();
