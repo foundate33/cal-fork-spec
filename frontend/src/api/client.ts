@@ -40,7 +40,10 @@ export const calendarApi = {
 };
 
 export const bookingApi = {
-  page: (slug: string) => api.get<BookingPage>(`/book/${slug}`),
+  page: (slug: string, date?: string) => {
+    const params = date ? `?date=${date}` : '';
+    return api.get<BookingPage>(`/book/${slug}${params}`);
+  },
   book: (slug: string, body: BookingCreate) =>
     api.post<Booking>(`/book/${slug}/book`, body),
 };

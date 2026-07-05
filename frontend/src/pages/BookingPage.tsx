@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  Title, Text, Card, Badge, Stack, Group, Modal, TextInput, Textarea, Button, Loader, Divider,
+  Title, Text, Card, Badge, Stack, Group, Modal, TextInput, Textarea, Button, Loader, Divider, ActionIcon,
 } from '@mantine/core';
 import { useForm, isEmail } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconClock, IconVideo, IconCalendarPlus, IconCheck } from '@tabler/icons-react';
+import { IconClock, IconVideo, IconCalendarPlus, IconCheck, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { bookingApi } from '../api/client';
+import { ApiError } from '../api/http';
 import type { BookingPage, Slot, Booking } from '../api/types';
 import { notifyError } from '../utils/notifications';
+
+const BOOKER_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export function BookingPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +21,7 @@ export function BookingPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [booked, setBooked] = useState<Booking | null>(null);
+  const [date, setDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
   const [bookOpened, { open: openBook, close: closeBook }] = useDisclosure();
 
   const form = useForm({
@@ -28,21 +32,22 @@ export function BookingPage() {
     },
   });
 
-  useEffect(() => {
+  const load = useCallback(async (d: string) => {
     if (!slug) return;
-    const load = async () => {
-      try {
-        setLoading(true);
-        const data = await bookingApi.page(slug);
-        setData(data);
-      } catch (err) {
-        notifyError(err, 'Failed to load page');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    try {
+      setLoading(true);
+      const data = await bookingApi.page(slug, d);
+      setData(data);
+    } catch (err) {
+      notifyError(err, 'Failed to load page');
+    } finally {
+      setLoading(false);
+    }
   }, [slug]);
+
+  useEffect(() => {
+    load(date);
+  }, [load, date]);
 
   const handleBook = async (values: typeof form.values) => {
     if (!slug || !selectedSlot) return;
@@ -56,7 +61,17 @@ export function BookingPage() {
       closeBook();
       notifications.show({ title: 'Booked!', message: 'Your meeting has been booked successfully.', color: 'green' });
     } catch (err) {
-      notifyError(err, 'Booking failed');
+      closeBook();
+      if (err instanceof ApiError && err.status === 409) {
+        notifications.show({
+          title: 'Slot just taken',
+          message: 'Someone else booked this slot while you were filling in the form. Please choose another time.',
+          color: 'orange',
+        });
+        load(date);
+      } else {
+        notifyError(err, 'Booking failed');
+      }
     }
   };
 
@@ -109,6 +124,26 @@ export function BookingPage() {
         </Group>
       </Card>
 
+      <Card withBorder padding="md" radius="md">
+        <Group justify="center" gap="xl">
+          <ActionIcon
+            variant="subtle"
+            size="lg"
+            onClick={() => setDate(dayjs(date).subtract(1, 'day').format('YYYY-MM-DD'))}
+          >
+            <IconChevronLeft />
+          </ActionIcon>
+          <Text fw={600} size="lg">{dayjs(date).format('dddd, MMMM D, YYYY')}</Text>
+          <ActionIcon
+            variant="subtle"
+            size="lg"
+            onClick={() => setDate(dayjs(date).add(1, 'day').format('YYYY-MM-DD'))}
+          >
+            <IconChevronRight />
+          </ActionIcon>
+        </Group>
+      </Card>
+
       {booked ? (
         <Card withBorder padding="lg" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
           <Group justify="center" mb="md">
@@ -120,7 +155,7 @@ export function BookingPage() {
               <strong>Date:</strong> {dayjs(booked.startTime).format('MMMM D, YYYY')}
             </Text>
             <Text>
-              <strong>Time:</strong> {dayjs(booked.startTime).format('HH:mm')} - {dayjs(booked.endTime).format('HH:mm')}
+              <strong>Time:</strong> {dayjs(booked.startTime).format('HH:mm')} - {dayjs(booked.endTime).format('HH:mm')} {BOOKER_TZ}
             </Text>
             <Divider my="sm" />
             <Button
@@ -160,7 +195,7 @@ export function BookingPage() {
                       <Group gap={4}>
                         <IconClock size={14} color="var(--mantine-color-gray-5)" />
                         <Text size="sm" c="dimmed">
-                          {dayjs(slot.startTime).format('HH:mm')} - {dayjs(slot.endTime).format('HH:mm')}
+                          {dayjs(slot.startTime).format('HH:mm')} - {dayjs(slot.endTime).format('HH:mm')} {BOOKER_TZ}
                         </Text>
                       </Group>
                     </Stack>
@@ -178,7 +213,7 @@ export function BookingPage() {
           <Stack gap="md">
             {selectedSlot && (
               <Text size="sm" c="dimmed">
-                {dayjs(selectedSlot.startTime).format('MMMM D, YYYY HH:mm')} - {dayjs(selectedSlot.endTime).format('HH:mm')}
+                {dayjs(selectedSlot.startTime).format('MMMM D, YYYY HH:mm')} - {dayjs(selectedSlot.endTime).format('HH:mm')} {BOOKER_TZ}
               </Text>
             )}
             <TextInput label="Your Name" required data-autofocus {...form.getInputProps('name')} />

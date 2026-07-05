@@ -298,6 +298,7 @@ interface BookingRouter {
   })
   page(
     @path slug: string,
+    @query date?: plainDate,
   ): BookingPage | Error;
 
   /** Забронировать слот */
