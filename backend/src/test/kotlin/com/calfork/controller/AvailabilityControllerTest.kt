@@ -19,23 +19,24 @@ class AvailabilityControllerTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var availabilityRuleRepository: AvailabilityRuleRepository
 
-    private fun authHeader(userId: String) =
-        HttpHeaders().apply { set("x-user-id", userId) }
+    private fun authHeader(userId: String) = HttpHeaders().apply { set("x-user-id", userId) }
 
     @Test
     fun shouldCreateAvailabilityRule() {
-        val body = AvailabilityRuleCreate(
-            daysOfWeek = listOf(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY),
-            startTime = "10:00",
-            endTime = "16:00",
-            timezone = "America/New_York",
-        )
+        val body =
+            AvailabilityRuleCreate(
+                daysOfWeek = listOf(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY),
+                startTime = "10:00",
+                endTime = "16:00",
+                timezone = "America/New_York",
+            )
 
-        val response = rest.postForEntity(
-            "/availability",
-            HttpEntity(body, authHeader("av-create")),
-            AvailabilityRuleModel::class.java,
-        )
+        val response =
+            rest.postForEntity(
+                "/availability",
+                HttpEntity(body, authHeader("av-create")),
+                AvailabilityRuleModel::class.java,
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
         val rule = response.body!!
@@ -51,18 +52,22 @@ class AvailabilityControllerTest : AbstractIntegrationTest() {
     fun shouldListAvailabilityRules() {
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "av-list",
+                id = "rule-1",
+                authorId = "av-list",
                 daysOfWeek = WeekDay.entries,
-                startTime = "09:00", endTime = "18:00",
+                startTime = "09:00",
+                endTime = "18:00",
                 timezone = "Europe/Moscow",
             ),
         )
 
-        val response = rest.exchange(
-            "/availability", HttpMethod.GET,
-            HttpEntity(null, authHeader("av-list")),
-            object : ParameterizedTypeReference<List<AvailabilityRuleModel>>() {},
-        )
+        val response =
+            rest.exchange(
+                "/availability",
+                HttpMethod.GET,
+                HttpEntity(null, authHeader("av-list")),
+                object : ParameterizedTypeReference<List<AvailabilityRuleModel>>() {},
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.body).isNotEmpty
@@ -72,25 +77,31 @@ class AvailabilityControllerTest : AbstractIntegrationTest() {
     fun shouldUpdateAvailabilityRule() {
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "av-update",
+                id = "rule-1",
+                authorId = "av-update",
                 daysOfWeek = WeekDay.entries,
-                startTime = "09:00", endTime = "18:00",
+                startTime = "09:00",
+                endTime = "18:00",
                 timezone = "Europe/Moscow",
             ),
         )
 
-        val body = AvailabilityRuleUpdate(
-            daysOfWeek = null,
-            startTime = "10:00",
-            endTime = "17:00",
-            timezone = null,
-        )
+        val body =
+            AvailabilityRuleUpdate(
+                daysOfWeek = null,
+                startTime = "10:00",
+                endTime = "17:00",
+                timezone = null,
+            )
 
-        val response = rest.exchange(
-            "/availability/{ruleId}", HttpMethod.PATCH,
-            HttpEntity(body, authHeader("av-update")),
-            AvailabilityRuleModel::class.java, "rule-1",
-        )
+        val response =
+            rest.exchange(
+                "/availability/{ruleId}",
+                HttpMethod.PATCH,
+                HttpEntity(body, authHeader("av-update")),
+                AvailabilityRuleModel::class.java,
+                "rule-1",
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         val updated = response.body!!
@@ -102,18 +113,23 @@ class AvailabilityControllerTest : AbstractIntegrationTest() {
     fun shouldDeleteAvailabilityRule() {
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "av-delete",
+                id = "rule-1",
+                authorId = "av-delete",
                 daysOfWeek = listOf(WeekDay.MONDAY),
-                startTime = "09:00", endTime = "17:00",
+                startTime = "09:00",
+                endTime = "17:00",
                 timezone = "Europe/Moscow",
             ),
         )
 
-        val response = rest.exchange(
-            "/availability/{ruleId}", HttpMethod.DELETE,
-            HttpEntity(null, authHeader("av-delete")),
-            Void::class.java, "rule-1",
-        )
+        val response =
+            rest.exchange(
+                "/availability/{ruleId}",
+                HttpMethod.DELETE,
+                HttpEntity(null, authHeader("av-delete")),
+                Void::class.java,
+                "rule-1",
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }

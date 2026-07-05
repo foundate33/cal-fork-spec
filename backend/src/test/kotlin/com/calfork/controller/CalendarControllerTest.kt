@@ -36,41 +36,50 @@ class CalendarControllerTest : AbstractIntegrationTest() {
 
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "cal-test",
+                id = "rule-1",
+                authorId = "cal-test",
                 daysOfWeek = WeekDay.entries,
-                startTime = "09:00", endTime = "18:00",
+                startTime = "09:00",
+                endTime = "18:00",
                 timezone = "Europe/Moscow",
             ),
         )
         eventTypeRepository.save(
             EventTypeModel(
-                id = "et-1", title = "Calendar Event",
-                description = null, durationMinutes = 30,
+                id = "et-1",
+                title = "Calendar Event",
+                description = null,
+                durationMinutes = 30,
                 zoomLink = "https://zoom.us/j/cal",
-                slug = "calendar-event", authorId = "cal-test",
+                slug = "calendar-event",
+                authorId = "cal-test",
                 bookingLink = "/book/calendar-event",
                 availabilityRuleId = "rule-1",
-                createdAt = now, updatedAt = now,
+                createdAt = now,
+                updatedAt = now,
             ),
         )
         bookingRepository.save(
             BookingModel(
-                id = "booking-1", eventTypeId = "et-1",
+                id = "booking-1",
+                eventTypeId = "et-1",
                 startTime = LocalDateTime.of(2026, 7, 6, 10, 0),
                 endTime = LocalDateTime.of(2026, 7, 6, 10, 30),
-                bookerName = "Alice", bookerEmail = "alice@example.com",
+                bookerName = "Alice",
+                bookerEmail = "alice@example.com",
                 bookerNotes = "Test booking",
                 zoomLink = "https://zoom.us/j/cal",
                 createdAt = now,
             ),
         )
 
-        val response = rest.exchange(
-            "/calendar?startDate=2026-07-06&endDate=2026-07-06",
-            HttpMethod.GET,
-            HttpEntity(null, HttpHeaders().apply { set("x-user-id", "cal-test") }),
-            object : ParameterizedTypeReference<List<CalendarEntryDto>>() {},
-        )
+        val response =
+            rest.exchange(
+                "/calendar?startDate=2026-07-06&endDate=2026-07-06",
+                HttpMethod.GET,
+                HttpEntity(null, HttpHeaders().apply { set("x-user-id", "cal-test") }),
+                object : ParameterizedTypeReference<List<CalendarEntryDto>>() {},
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         val entries = response.body!!

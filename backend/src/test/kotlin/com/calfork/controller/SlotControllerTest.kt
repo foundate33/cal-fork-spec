@@ -31,33 +31,41 @@ class SlotControllerTest : AbstractIntegrationTest() {
 
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "slot-test",
+                id = "rule-1",
+                authorId = "slot-test",
                 daysOfWeek = WeekDay.entries,
-                startTime = "09:00", endTime = "18:00",
+                startTime = "09:00",
+                endTime = "18:00",
                 timezone = "Europe/Moscow",
             ),
         )
         eventTypeRepository.save(
             EventTypeModel(
-                id = "et-1", title = "Slotted Event",
-                description = null, durationMinutes = 30,
+                id = "et-1",
+                title = "Slotted Event",
+                description = null,
+                durationMinutes = 30,
                 zoomLink = "https://zoom.us/j/slots",
-                slug = "slotted-event", authorId = "slot-test",
+                slug = "slotted-event",
+                authorId = "slot-test",
                 bookingLink = "/book/slotted-event",
                 availabilityRuleId = "rule-1",
-                createdAt = now, updatedAt = now,
+                createdAt = now,
+                updatedAt = now,
             ),
         )
 
         val date = LocalDate.of(2026, 7, 6)
 
-        val response = rest.exchange(
-            "/event-types/{eventTypeId}/slots?date={date}",
-            HttpMethod.GET,
-            HttpEntity(null, HttpHeaders().apply { set("x-user-id", "slot-test") }),
-            object : ParameterizedTypeReference<List<SlotDto>>() {},
-            "et-1", date.toString(),
-        )
+        val response =
+            rest.exchange(
+                "/event-types/{eventTypeId}/slots?date={date}",
+                HttpMethod.GET,
+                HttpEntity(null, HttpHeaders().apply { set("x-user-id", "slot-test") }),
+                object : ParameterizedTypeReference<List<SlotDto>>() {},
+                "et-1",
+                date.toString(),
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         val slots = response.body!!

@@ -81,39 +81,48 @@ class BookingControllerTest : AbstractIntegrationTest() {
 
         availabilityRuleRepository.save(
             AvailabilityRuleModel(
-                id = "rule-1", authorId = "book-create",
+                id = "rule-1",
+                authorId = "book-create",
                 daysOfWeek = WeekDay.entries,
-                startTime = "09:00", endTime = "18:00",
+                startTime = "09:00",
+                endTime = "18:00",
                 timezone = "Europe/Moscow",
             ),
         )
         eventTypeRepository.save(
             EventTypeModel(
-                id = "et-1", title = "Bookable Event",
-                description = null, durationMinutes = 30,
+                id = "et-1",
+                title = "Bookable Event",
+                description = null,
+                durationMinutes = 30,
                 zoomLink = "https://zoom.us/j/bookable",
-                slug = "bookable-event", authorId = "book-create",
+                slug = "bookable-event",
+                authorId = "book-create",
                 bookingLink = "/book/bookable-event",
                 availabilityRuleId = "rule-1",
-                createdAt = now, updatedAt = now,
+                createdAt = now,
+                updatedAt = now,
             ),
         )
 
-        val body = BookingCreate(
-            startTime = LocalDateTime.of(2026, 7, 6, 14, 0),
-            endTime = LocalDateTime.of(2026, 7, 6, 14, 30),
-            booker = BookerInfo(
-                name = "John Doe",
-                email = "john@example.com",
-                notes = "Looking forward to it",
-            ),
-        )
+        val body =
+            BookingCreate(
+                startTime = LocalDateTime.of(2026, 7, 6, 14, 0),
+                endTime = LocalDateTime.of(2026, 7, 6, 14, 30),
+                booker =
+                    BookerInfo(
+                        name = "John Doe",
+                        email = "john@example.com",
+                        notes = "Looking forward to it",
+                    ),
+            )
 
-        val response = rest.postForEntity(
-            "/book/bookable-event/book",
-            HttpEntity(body),
-            BookingResponse::class.java,
-        )
+        val response =
+            rest.postForEntity(
+                "/book/bookable-event/book",
+                HttpEntity(body),
+                BookingResponse::class.java,
+            )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
         val booking = response.body!!

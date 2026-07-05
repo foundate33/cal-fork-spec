@@ -103,6 +103,7 @@ To run a single test class: `./gradlew test --tests "com.calfork.controller.Book
 - **PATCH requests**: use `rest.exchange(url, HttpMethod.PATCH, HttpEntity(body, headers), ResponseType::class.java)` — `TestRestTemplate` has no `patchForEntity`.
 - **List responses**: use `rest.exchange(..., object : ParameterizedTypeReference<List<T>>() {})` instead of `getForEntity`.
 - **Public vs auth endpoints**: booking routes (`/book/{slug}`) need no `x-user-id` header. All other endpoints require it.
+- **Lint after every test change**: after modifying any test file, run `make backend-lint` (or `./gradlew ktlintCheck`) to catch ktlint violations in tests. The `ktlintTestSourceSetCheck` task enforces formatting on test sources.
 
 ### Typical local dev flow
 
