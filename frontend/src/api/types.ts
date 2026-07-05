@@ -17,7 +17,6 @@ export interface EventTypeCreate {
   description?: string;
   durationMinutes: number;
   zoomLink: string;
-  slug?: string;
   availabilityRuleId?: string;
 }
 

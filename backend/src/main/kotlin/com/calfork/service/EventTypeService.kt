@@ -42,7 +42,7 @@ class EventTypeService(
                 ?: throw NotFoundException("Availability rule not found")
         if (rule.authorId != authorId) throw NotFoundException("Availability rule not found")
 
-        val slug = request.slug ?: generateSlug(request.title)
+        val slug = generateSlug(request.title)
         if (repository.slugExists(slug)) {
             throw ConflictException("Slug already exists: $slug")
         }

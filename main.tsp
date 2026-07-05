@@ -41,9 +41,6 @@ model EventTypeCreate {
   /** Ссылка на Zoom-конференцию */
   zoomLink: string;
 
-  /** Кастомный slug для ссылки бронирования (опционально, иначе генерируется) */
-  slug?: string;
-
   /** ID правила доступности, к которому привязан этот тип события (опционально — подставится дефолтное) */
   availabilityRuleId?: string;
 }
@@ -74,6 +71,10 @@ model EventType {
 // ---- Slot ----
 
 /** Временной слот, доступный для бронирования (вычисляется из AvailabilityRule + EventType) */
+@example(#{
+  startTime: utcDateTime.fromISO("2026-07-06T09:00:00Z"),
+  endTime: utcDateTime.fromISO("2026-07-06T09:30:00Z"),
+})
 model Slot {
   startTime: utcDateTime;
   endTime: utcDateTime;
@@ -271,7 +272,31 @@ interface Calendar {
 @tag("Booking")
 interface BookingRouter {
   /** Получить публичную страницу бронирования (тип события + доступные слоты) */
-  @get page(
+  @get
+  @opExample(#{
+    parameters: #{ slug: "my-event" },
+    returnType: #{
+      eventType: #{
+        id: "et-1",
+        title: "30 min chat",
+        description: "A quick catch-up",
+        durationMinutes: 30,
+        zoomLink: "https://zoom.us/j/123",
+        slug: "my-event",
+        authorId: "user-1",
+        bookingLink: "/book/my-event",
+        availabilityRuleId: "rule-1",
+        createdAt: utcDateTime.fromISO("2026-07-01T00:00:00Z"),
+        updatedAt: utcDateTime.fromISO("2026-07-01T00:00:00Z"),
+      },
+      slots: #[
+        #{ startTime: utcDateTime.fromISO("2026-07-06T09:00:00Z"), endTime: utcDateTime.fromISO("2026-07-06T09:30:00Z") },
+        #{ startTime: utcDateTime.fromISO("2026-07-06T09:30:00Z"), endTime: utcDateTime.fromISO("2026-07-06T10:00:00Z") },
+        #{ startTime: utcDateTime.fromISO("2026-07-06T10:00:00Z"), endTime: utcDateTime.fromISO("2026-07-06T10:30:00Z") },
+      ],
+    },
+  })
+  page(
     @path slug: string,
   ): BookingPage | Error;
 

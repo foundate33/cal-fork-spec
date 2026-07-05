@@ -21,7 +21,6 @@ data class EventTypeCreate(
     val description: String?,
     val durationMinutes: Int,
     val zoomLink: String,
-    val slug: String?,
     val availabilityRuleId: String?,
 )
 

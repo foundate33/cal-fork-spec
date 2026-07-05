@@ -18,7 +18,6 @@ export function EventTypeForm({ opened, onClose, eventType, availabilityRules, o
       description: '',
       durationMinutes: 30,
       zoomLink: '',
-      slug: '',
       availabilityRuleId: '',
     },
     validate: {
@@ -36,7 +35,6 @@ export function EventTypeForm({ opened, onClose, eventType, availabilityRules, o
         description: eventType.description || '',
         durationMinutes: eventType.durationMinutes,
         zoomLink: eventType.zoomLink,
-        slug: eventType.slug,
         availabilityRuleId: eventType.availabilityRuleId,
       });
     } else {
@@ -45,7 +43,6 @@ export function EventTypeForm({ opened, onClose, eventType, availabilityRules, o
         description: '',
         durationMinutes: 30,
         zoomLink: '',
-        slug: '',
         availabilityRuleId: availabilityRules.length > 0 ? availabilityRules[0].id : '',
       });
     }
@@ -93,13 +90,6 @@ export function EventTypeForm({ opened, onClose, eventType, availabilityRules, o
             required
             {...form.getInputProps('zoomLink')}
           />
-          {!eventType && (
-            <TextInput
-              label="Custom slug (optional)"
-              placeholder="my-meeting"
-              {...form.getInputProps('slug')}
-            />
-          )}
           <Select
             label="Availability Rule"
             placeholder={availabilityRules.length === 0 ? 'No rules — create one first' : 'Select a rule'}

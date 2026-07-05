@@ -60,6 +60,14 @@ export function BookingPage() {
     }
   };
 
+  if (!slug) {
+    return (
+      <Card withBorder p="xl" maw={500} mx="auto" mt="xl">
+        <Text c="dimmed" ta="center">No booking link specified.</Text>
+      </Card>
+    );
+  }
+
   if (loading) {
     return <Stack align="center" mt="xl"><Loader /></Stack>;
   }

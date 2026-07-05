@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { theme } from './theme';
@@ -57,6 +57,7 @@ export default function App() {
                   </AuthGuard>
                 }
               />
+              <Route path="/book" element={<Navigate to="/" replace />} />
               <Route path="/book/:slug" element={<BookingPage />} />
             </Route>
           </Routes>
