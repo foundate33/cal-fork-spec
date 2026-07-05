@@ -18,6 +18,7 @@ class CalendarService(
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<CalendarEntryDto> {
+        println("trigger release")
         val eventTypes = eventTypeRepository.findByAuthorId(authorId).associateBy { it.id }
         if (eventTypes.isEmpty()) return emptyList()
 
