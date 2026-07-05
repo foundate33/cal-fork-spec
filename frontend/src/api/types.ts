@@ -7,6 +7,7 @@ export interface EventType {
   slug: string;
   authorId: string;
   bookingLink: string;
+  availabilityRuleId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,6 +18,7 @@ export interface EventTypeCreate {
   durationMinutes: number;
   zoomLink: string;
   slug?: string;
+  availabilityRuleId: string;
 }
 
 export interface EventTypeUpdate {

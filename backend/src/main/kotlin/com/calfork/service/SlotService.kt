@@ -22,19 +22,15 @@ class SlotService(
     ): List<SlotDto> {
         val dayOfWeek = mapDayOfWeek(date.dayOfWeek)
 
-        val rules =
-            availabilityRuleRepository.findByAuthorId(eventType.authorId)
-                .filter { dayOfWeek in it.daysOfWeek }
-
-        if (rules.isEmpty()) return emptyList()
+        val rule = availabilityRuleRepository.findById(eventType.availabilityRuleId) ?: return emptyList()
+        if (dayOfWeek !in rule.daysOfWeek) return emptyList()
 
         val existingBookings = bookingRepository.findByEventTypeIdAndDate(eventType.id, date)
         val now = LocalDateTime.now()
         val isToday = date == now.toLocalDate()
 
-        return rules.flatMap { rule ->
-            generateSlotsForRule(rule, eventType.durationMinutes, date, existingBookings, isToday, now)
-        }.sortedBy { it.startTime }
+        return generateSlotsForRule(rule, eventType.durationMinutes, date, existingBookings, isToday, now)
+            .sortedBy { it.startTime }
     }
 
     private fun generateSlotsForRule(

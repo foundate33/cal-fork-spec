@@ -5,3 +5,6 @@ databaseChangeLog:
   - include:
       file: 001-create-tables.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 002-add-availability-rule-id.yaml
+      relativeToChangelogFile: true

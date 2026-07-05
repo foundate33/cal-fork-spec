@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Table, Button, Group, Text, Loader, Card, Title, Badge, Stack, Modal,
+  Table, Button, Group, Text, Loader, Card, Title, Badge, Stack, Modal, Anchor, Tooltip, ActionIcon,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconCalendarEvent, IconEdit, IconTrash } from '@tabler/icons-react';
-import { eventTypesApi } from '../api/client';
-import type { EventType, EventTypeCreate, EventTypeUpdate } from '../api/types';
+import { IconPlus, IconCalendarEvent, IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
+import { eventTypesApi, availabilityApi } from '../api/client';
+import type { EventType, EventTypeCreate, EventTypeUpdate, AvailabilityRule } from '../api/types';
 import { EventTypeForm } from '../components/EventTypeForm';
 import { notifyError } from '../utils/notifications';
 
 export function EventTypesPage() {
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
+  const [availabilityRules, setAvailabilityRules] = useState<AvailabilityRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpened, { open: openForm, close: closeForm }] = useDisclosure();
   const [editing, setEditing] = useState<EventType | null>(null);
@@ -22,8 +23,12 @@ export function EventTypesPage() {
   const fetchEventTypes = async () => {
     try {
       setLoading(true);
-      const data = await eventTypesApi.list();
-      setEventTypes(data);
+      const [types, rules] = await Promise.all([
+        eventTypesApi.list(),
+        availabilityApi.list(),
+      ]);
+      setEventTypes(types);
+      setAvailabilityRules(rules);
     } catch (err) {
       notifyError(err, 'Failed to load event types');
     } finally {
@@ -35,14 +40,36 @@ export function EventTypesPage() {
 
   const handleSave = async (data: EventTypeCreate | EventTypeUpdate) => {
     try {
+      let created: EventType | null = null;
       if (editing) {
         await eventTypesApi.update(editing.id, data as EventTypeUpdate);
       } else {
-        await eventTypesApi.create(data as EventTypeCreate);
+        created = await eventTypesApi.create(data as EventTypeCreate);
       }
       setEditing(null);
       await fetchEventTypes();
-      notifications.show({ title: 'Success', message: editing ? 'Event type updated' : 'Event type created', color: 'green' });
+      if (created) {
+        const url = `${window.location.origin}/book/${created.slug}`;
+        notifications.show({
+          title: 'Event type created',
+          message: (
+            <Group justify="space-between" wrap="nowrap">
+              <Text size="sm" truncate style={{ flex: 1 }}>{url}</Text>
+              <Button
+                size="compact-xs"
+                variant="light"
+                onClick={() => navigator.clipboard.writeText(url)}
+              >
+                Copy
+              </Button>
+            </Group>
+          ),
+          color: 'green',
+          autoClose: 10000,
+        });
+      } else {
+        notifications.show({ title: 'Success', message: 'Event type updated', color: 'green' });
+      }
     } catch (err) {
       notifyError(err, 'Operation failed');
     }
@@ -109,7 +136,25 @@ export function EventTypesPage() {
                   <Badge variant="light" color="orange">{et.durationMinutes} min</Badge>
                 </Table.Td>
                 <Table.Td>
-                  <Badge variant="outline" color="gray">{et.slug}</Badge>
+                  <Group gap="xs" wrap="nowrap">
+                    <Anchor
+                      href={`${window.location.origin}/book/${et.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                    >
+                      {et.slug}
+                    </Anchor>
+                    <Tooltip label="Copy booking link">
+                      <ActionIcon
+                        variant="subtle"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(`${window.location.origin}/book/${et.slug}`)}
+                      >
+                        <IconCopy size={14} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
                 </Table.Td>
                 <Table.Td>
                   <Group gap="xs">
@@ -146,7 +191,7 @@ export function EventTypesPage() {
         </Table>
       )}
 
-      <EventTypeForm opened={formOpened} onClose={() => { closeForm(); setEditing(null); }} eventType={editing} onSave={handleSave} />
+      <EventTypeForm opened={formOpened} onClose={() => { closeForm(); setEditing(null); }} eventType={editing} availabilityRules={availabilityRules} onSave={handleSave} />
       <Modal opened={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Confirm Delete" centered>
         <Stack>
           <Text>Are you sure you want to delete "{deleteTarget?.title}"? This action cannot be undone.</Text>

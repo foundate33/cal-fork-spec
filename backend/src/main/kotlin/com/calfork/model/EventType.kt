@@ -11,6 +11,7 @@ data class EventTypeModel(
     val slug: String,
     val authorId: String,
     val bookingLink: String,
+    val availabilityRuleId: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 )
@@ -21,6 +22,7 @@ data class EventTypeCreate(
     val durationMinutes: Int,
     val zoomLink: String,
     val slug: String?,
+    val availabilityRuleId: String,
 )
 
 data class EventTypeUpdate(

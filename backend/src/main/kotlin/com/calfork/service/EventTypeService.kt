@@ -5,6 +5,7 @@ import com.calfork.exception.NotFoundException
 import com.calfork.model.EventTypeCreate
 import com.calfork.model.EventTypeModel
 import com.calfork.model.EventTypeUpdate
+import com.calfork.repository.AvailabilityRuleRepository
 import com.calfork.repository.BookingRepository
 import com.calfork.repository.EventTypeRepository
 import org.springframework.stereotype.Service
@@ -15,6 +16,7 @@ import java.util.UUID
 class EventTypeService(
     private val repository: EventTypeRepository,
     private val bookingRepository: BookingRepository,
+    private val availabilityRuleRepository: AvailabilityRuleRepository,
 ) {
     fun list(authorId: String): List<EventTypeModel> = repository.findByAuthorId(authorId)
 
@@ -33,6 +35,11 @@ class EventTypeService(
         request: EventTypeCreate,
         authorId: String,
     ): EventTypeModel {
+        val rule =
+            availabilityRuleRepository.findById(request.availabilityRuleId)
+                ?: throw NotFoundException("Availability rule not found")
+        if (rule.authorId != authorId) throw NotFoundException("Availability rule not found")
+
         val slug = request.slug ?: generateSlug(request.title)
         if (repository.slugExists(slug)) {
             throw ConflictException("Slug already exists: $slug")
@@ -48,6 +55,7 @@ class EventTypeService(
                 slug = slug,
                 authorId = authorId,
                 bookingLink = "/book/$slug",
+                availabilityRuleId = request.availabilityRuleId,
                 createdAt = now,
                 updatedAt = now,
             )
