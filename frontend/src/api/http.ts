@@ -8,7 +8,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = 'http://localhost:4010';
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4010';
 
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = {

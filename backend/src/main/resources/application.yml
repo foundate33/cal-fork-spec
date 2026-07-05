@@ -16,7 +16,7 @@ server:
 
 calfork:
   cors:
-    allowed-origins: http://localhost:5173
+    allowed-origins: http://localhost:5173,https://frontend-wklq.onrender.com
 
 management:
   endpoints:
