@@ -115,6 +115,20 @@ When adding/changing a model or route, edit `main.tsp` and run `make generate` t
 - **UI kit**: Mantine (`@mantine/core`, `dates`, `form`, `hooks`, `notifications`), theme customization in `theme.ts`. Forms use `@mantine/form`; async errors typically surface via `@mantine/notifications`.
 - Pages under `pages/` correspond to the spec's interfaces (one page per resource); reusable form pieces live in `components/` (`EventTypeForm`, `SlotForm`, `AvailabilityForm`).
 
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `foundate33/cal-fork-spec`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Standard five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single context — `CONTEXT.md` at repo root, ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+
 ## Verification
 
 После завершения любой работы напиши, как ты верифицировал изменения — какие команды запускал, какой результат, были ли ошибки. Это должно быть последним шагом перед ответом пользователю.
