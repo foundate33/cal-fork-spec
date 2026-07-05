@@ -11,6 +11,7 @@ import com.calfork.repository.BookingRepository
 import com.calfork.repository.EventTypeRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -20,12 +21,15 @@ class BookingService(
     private val bookingRepository: BookingRepository,
     private val slotService: SlotService,
 ) {
-    fun getBookingPage(slug: String): BookingPageDto {
+    fun getBookingPage(
+        slug: String,
+        date: LocalDate? = null,
+    ): BookingPageDto {
         val eventType =
             eventTypeRepository.findBySlug(slug)
                 ?: throw NotFoundException("Event type not found: $slug")
-        val now = LocalDateTime.now()
-        val slots = slotService.getSlots(eventType, now.toLocalDate())
+        val targetDate = date ?: LocalDateTime.now().toLocalDate()
+        val slots = slotService.getSlots(eventType, targetDate)
         return BookingPageDto(eventType = eventType, slots = slots)
     }
 

@@ -119,13 +119,13 @@ class BookingRepository(
                 BookingModel(
                     id = rs.getString("id"),
                     eventTypeId = rs.getString("event_type_id"),
-                    startTime = LocalDateTime.parse(rs.getString("start_time")),
-                    endTime = LocalDateTime.parse(rs.getString("end_time")),
+                    startTime = rs.getObject("start_time", LocalDateTime::class.java),
+                    endTime = rs.getObject("end_time", LocalDateTime::class.java),
                     bookerName = rs.getString("booker_name"),
                     bookerEmail = rs.getString("booker_email"),
                     bookerNotes = rs.getString("booker_notes"),
                     zoomLink = rs.getString("zoom_link"),
-                    createdAt = LocalDateTime.parse(rs.getString("created_at")),
+                    createdAt = rs.getObject("created_at", LocalDateTime::class.java),
                 )
             }
     }

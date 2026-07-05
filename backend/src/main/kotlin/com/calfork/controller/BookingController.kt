@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/book/{slug}")
@@ -21,7 +23,8 @@ class BookingController(
     @GetMapping
     fun page(
         @PathVariable slug: String,
-    ): BookingPageDto = service.getBookingPage(slug)
+        @RequestParam date: LocalDate? = null,
+    ): BookingPageDto = service.getBookingPage(slug, date)
 
     @PostMapping("/book")
     @ResponseStatus(HttpStatus.CREATED)
