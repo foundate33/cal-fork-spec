@@ -22,7 +22,7 @@ data class EventTypeCreate(
     val durationMinutes: Int,
     val zoomLink: String,
     val slug: String?,
-    val availabilityRuleId: String,
+    val availabilityRuleId: String?,
 )
 
 data class EventTypeUpdate(

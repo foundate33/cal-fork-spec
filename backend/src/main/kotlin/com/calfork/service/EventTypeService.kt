@@ -17,6 +17,7 @@ class EventTypeService(
     private val repository: EventTypeRepository,
     private val bookingRepository: BookingRepository,
     private val availabilityRuleRepository: AvailabilityRuleRepository,
+    private val availabilityService: AvailabilityService,
 ) {
     fun list(authorId: String): List<EventTypeModel> = repository.findByAuthorId(authorId)
 
@@ -35,8 +36,9 @@ class EventTypeService(
         request: EventTypeCreate,
         authorId: String,
     ): EventTypeModel {
+        val ruleId = request.availabilityRuleId ?: availabilityService.getOrCreateDefault(authorId).id
         val rule =
-            availabilityRuleRepository.findById(request.availabilityRuleId)
+            availabilityRuleRepository.findById(ruleId)
                 ?: throw NotFoundException("Availability rule not found")
         if (rule.authorId != authorId) throw NotFoundException("Availability rule not found")
 
@@ -55,7 +57,7 @@ class EventTypeService(
                 slug = slug,
                 authorId = authorId,
                 bookingLink = "/book/$slug",
-                availabilityRuleId = request.availabilityRuleId,
+                availabilityRuleId = ruleId,
                 createdAt = now,
                 updatedAt = now,
             )

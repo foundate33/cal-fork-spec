@@ -19,3 +19,7 @@ backend/out/
 
 # Kotlin
 *.kotlin_module
+
+# SQLite
+backend/*.db
+backend/*.db-journal

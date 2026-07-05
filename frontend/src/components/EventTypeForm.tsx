@@ -40,7 +40,14 @@ export function EventTypeForm({ opened, onClose, eventType, availabilityRules, o
         availabilityRuleId: eventType.availabilityRuleId,
       });
     } else {
-      form.reset();
+      form.setValues({
+        title: '',
+        description: '',
+        durationMinutes: 30,
+        zoomLink: '',
+        slug: '',
+        availabilityRuleId: availabilityRules.length > 0 ? availabilityRules[0].id : '',
+      });
     }
   }, [eventType, opened]);
 

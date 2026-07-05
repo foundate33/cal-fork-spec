@@ -128,8 +128,8 @@ class EventTypeRepository(
                     authorId = rs.getString("author_id"),
                     bookingLink = rs.getString("booking_link"),
                     availabilityRuleId = rs.getString("availability_rule_id"),
-                    createdAt = rs.getTimestamp("created_at").toLocalDateTime(),
-                    updatedAt = rs.getTimestamp("updated_at").toLocalDateTime(),
+                    createdAt = LocalDateTime.parse(rs.getString("created_at")),
+                    updatedAt = LocalDateTime.parse(rs.getString("updated_at")),
                 )
             }
     }
