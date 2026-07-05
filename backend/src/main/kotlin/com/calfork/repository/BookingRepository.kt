@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Repository
@@ -94,13 +95,13 @@ class BookingRepository(
                 BookingModel(
                     id = rs.getString("id"),
                     eventTypeId = rs.getString("event_type_id"),
-                    startTime = rs.getTimestamp("start_time").toLocalDateTime(),
-                    endTime = rs.getTimestamp("end_time").toLocalDateTime(),
+                    startTime = LocalDateTime.parse(rs.getString("start_time")),
+                    endTime = LocalDateTime.parse(rs.getString("end_time")),
                     bookerName = rs.getString("booker_name"),
                     bookerEmail = rs.getString("booker_email"),
                     bookerNotes = rs.getString("booker_notes"),
                     zoomLink = rs.getString("zoom_link"),
-                    createdAt = rs.getTimestamp("created_at").toLocalDateTime(),
+                    createdAt = LocalDateTime.parse(rs.getString("created_at")),
                 )
             }
     }

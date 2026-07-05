@@ -18,7 +18,7 @@ export interface EventTypeCreate {
   durationMinutes: number;
   zoomLink: string;
   slug?: string;
-  availabilityRuleId: string;
+  availabilityRuleId?: string;
 }
 
 export interface EventTypeUpdate {

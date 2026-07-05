@@ -4,6 +4,7 @@ import com.calfork.exception.NotFoundException
 import com.calfork.model.AvailabilityRuleCreate
 import com.calfork.model.AvailabilityRuleModel
 import com.calfork.model.AvailabilityRuleUpdate
+import com.calfork.model.WeekDay
 import com.calfork.repository.AvailabilityRuleRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -12,7 +13,27 @@ import java.util.UUID
 class AvailabilityService(
     private val repository: AvailabilityRuleRepository,
 ) {
-    fun list(authorId: String): List<AvailabilityRuleModel> = repository.findByAuthorId(authorId)
+    fun list(authorId: String): List<AvailabilityRuleModel> {
+        val rules = repository.findByAuthorId(authorId)
+        if (rules.isEmpty()) {
+            return listOf(getOrCreateDefault(authorId))
+        }
+        return rules
+    }
+
+    fun getOrCreateDefault(authorId: String): AvailabilityRuleModel {
+        val existing = repository.findByAuthorId(authorId)
+        if (existing.isNotEmpty()) return existing.first()
+        return create(
+            AvailabilityRuleCreate(
+                daysOfWeek = listOf(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY),
+                startTime = "09:00",
+                endTime = "18:00",
+                timezone = "Europe/Moscow",
+            ),
+            authorId,
+        )
+    }
 
     fun create(
         request: AvailabilityRuleCreate,
